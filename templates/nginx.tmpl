@@ -1,0 +1,43 @@
+    {{ range $host, $containers := groupBy $ "Env.VIRTUAL_HOST" }}
+           
+    upstream {{ $host }} {
+
+    {{ range $index, $value := $containers }}
+       {{ with $address := index $value.Addresses 0 }}
+       server {{ $address.IP }}:{{ $address.Port }};
+       {{ end }}
+    {{ end }}
+
+    }
+    
+
+    # Configuration for the server                                                                                                                                                                                                                                             
+    server {
+
+        # Running port                                                                                                                                                                                                                                                         
+        #listen 80;
+	server_name {{ $host }};
+        location / {
+
+        if ($request_uri ~ ^/lolek(.*)$) {
+            rewrite ^/lolek(.*) /$1 break;
+            proxy_pass         http://{{ $host }};
+
+        }
+
+        if ($request_uri ~ ^/bolek(.*)) {
+            rewrite ^/bolek(.*) /$1 break;
+            proxy_pass         http://{{ $host }};
+
+        }
+            proxy_redirect     off;
+            proxy_set_header   Host $host;
+            proxy_set_header   X-Real-IP $remote_addr;
+            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header   X-Forwarded-Host $server_name;
+
+        }
+
+    }
+    {{ end }}
+

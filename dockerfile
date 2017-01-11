@@ -9,14 +9,16 @@ FROM nginx
 # Setting the file maintainer (your name - the file's author)
 MAINTAINER Carlos Klinsmann
 
-#Changing nginx configuration by adding a custom one
-#ADD default.conf /etc/nginx/conf.d/default.conf
 
-ADD nginx.conf /etc/nginx/nginx.conf
+RUN mkdir -p /etc/nginx/templates
 
+COPY templates/* /etc/nginx/templates/
 
+COPY docker-gen /opt/
 
+ENV DOCKER_HOST unix:///tmp/docker.sock
 
+ENTRYPOINT ["/opt/docker-gen","-only-exposed","-watch","-notify-sighup","nginx_container1","/etc/nginx/templates/nginx.tmpl","/etc/nginx/conf.d/default.conf"]
 
 
 

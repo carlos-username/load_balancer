@@ -1,0 +1,7 @@
+FROM nginx
+
+MAINTAINER Carlos Klinsmann
+
+COPY nginx.conf /etc/nginx/nginx.conf
+
+VOLUME /etc/nginx/conf.d
